@@ -1,1 +1,25 @@
-<p>schools-list works!</p>
+<div class="table">
+  <div class="table-operations">
+    <button nz-button (click)="create()" nzType="primary">Create School</button>
+  </div>
+  <nz-table #filterTable [nzData]="listOfData" nzTableLayout="fixed">
+    <thead>
+      <tr>
+        <th
+          *ngFor="let column of listOfColumns; trackBy: trackByName"
+          [(nzSortOrder)]="column.sortOrder"
+          [nzSortFn]="column.sortFn"
+        >
+          {{ column.name }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of filterTable.data; trackBy: trackBySchoolId">
+        <td>{{ data.id }}</td>
+        <td>{{ data.name }}</td>
+        <td>{{ data.principal }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>

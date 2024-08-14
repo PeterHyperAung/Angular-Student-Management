@@ -1,8 +1,12 @@
+import { School } from './school';
+
 export type Student = {
   id: number;
   name: string;
   email: string;
-  age: number;
+  dateOfBirth: string;
+  school: School;
+  startedAt: string;
 };
 
 export type Students = Student[];

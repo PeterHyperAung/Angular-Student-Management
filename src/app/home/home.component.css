@@ -1,0 +1,10 @@
+.home--links-container {
+  display: flex;
+  gap: 10px;
+}
+
+.home--container {
+  padding: 20px;
+  padding-left: 25px;
+  padding-right: 25px;
+}

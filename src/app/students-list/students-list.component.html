@@ -1,7 +1,7 @@
 <div class="table">
   <div class="table-operations">
-    <button nz-button (click)="resetSortAndFilters()" nzType="primary">
-      Clear filters and sorters
+    <button nz-button (click)="create()" nzType="primary">
+      Create student
     </button>
   </div>
   <nz-table #filterTable [nzData]="listOfData" nzTableLayout="fixed">
@@ -11,19 +11,20 @@
           *ngFor="let column of listOfColumns; trackBy: trackByName"
           [(nzSortOrder)]="column.sortOrder"
           [nzSortFn]="column.sortFn"
-          [nzFilters]="column.listOfFilter"
-          [nzFilterFn]="column.filterFn"
+          [nzWidth]="column.name.toLowerCase() == 'email' ? '250px' : ''"
         >
           {{ column.name }}
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let data of filterTable.data">
+      <tr *ngFor="let data of filterTable.data; trackBy: trackByStudentId">
         <td>{{ data.id }}</td>
         <td>{{ data.name }}</td>
         <td>{{ data.email }}</td>
-        <td>{{ data.age }}</td>
+        <td>{{ toDateString(data.dateOfBirth) }}</td>
+        <td>{{ data.school.name }}</td>
+        <td>{{ toDateString(data.startedAt) }}</td>
       </tr>
     </tbody>
   </nz-table>

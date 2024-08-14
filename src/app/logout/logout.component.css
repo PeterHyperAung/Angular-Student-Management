@@ -1,14 +1,5 @@
-.logout--container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  gap: 20px;
-}
-
-.logout--btn-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+.logout--card {
+  margin: 10px auto;
+  max-width: 500px;
+  text-align: center;
 }

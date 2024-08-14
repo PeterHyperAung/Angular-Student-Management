@@ -1,9 +1,7 @@
-<nz-card nzTitle="Logout">
+<nz-card nzTitle="Logout" class="logout--card">
+  <p>Are you sure you wanna logout?</p>
   <div>
-    <p>Are you sure you wanna logout?</p>
-    <div>
-      <button>Yes</button>
-      <button>No</button>
-    </div>
+    <button nz-button (click)="logout()" nzType="link">Yes</button>
+    <button nz-button (click)="routeToHome()" nzType="primary">No</button>
   </div>
 </nz-card>
