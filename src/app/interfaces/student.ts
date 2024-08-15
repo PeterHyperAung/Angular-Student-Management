@@ -6,7 +6,7 @@ export type Student = {
   email: string;
   dateOfBirth: string;
   school: School;
-  startedAt: string;
+  startedAt: string | null;
 };
 
 export type Students = Student[];

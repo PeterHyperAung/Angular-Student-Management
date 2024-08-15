@@ -1,4 +1,8 @@
 <main>
+  @if(isAuthenticated) {
   <app-header></app-header>
+  } @else {
+  <div style="height: 30px"></div>
+  }
   <router-outlet></router-outlet>
 </main>

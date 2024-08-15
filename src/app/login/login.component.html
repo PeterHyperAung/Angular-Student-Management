@@ -1,3 +1,19 @@
+@if(!loading) { @if(unexpectedError) {
+<nz-alert
+  nzType="error"
+  nzMessage="Unexpected error"
+  nzDescription="An unexpected error occurred. Please try again later."
+  nzShowIcon
+  style="margin: 0 auto 20px; max-width: 400px"
+></nz-alert>
+} @if(authFail) {
+<nz-alert
+  nzType="error"
+  nzMessage="Invalid Credentials"
+  nzShowIcon
+  style="margin: 0 auto 20px; max-width: 400px"
+></nz-alert>
+}
 <div style="padding: 0 10px">
   <nz-card style="max-width: 400px; margin: 10px auto">
     <h3 style="margin-bottom: 20px; text-align: center">Login</h3>
@@ -78,3 +94,4 @@
     </form>
   </nz-card>
 </div>
+}

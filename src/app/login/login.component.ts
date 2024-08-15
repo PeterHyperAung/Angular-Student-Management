@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
@@ -15,6 +15,8 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzCardComponent } from 'ng-zorro-antd/card';
 import { AuthService } from '../service/auth.service';
+import { JwtService } from '../service/jwt.service';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @Component({
   selector: 'app-login',
@@ -29,16 +31,24 @@ import { AuthService } from '../service/auth.service';
     NzCardComponent,
     NzTypographyModule,
     NzFlexModule,
+    NzAlertModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
-  private authService: AuthService;
+  loading = true;
+  unexpectedError = false;
+  authFail = false;
 
-  constructor(fb: FormBuilder, authService: AuthService) {
-    this.authService = authService;
+  constructor(
+    fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private jwtService: JwtService,
+    private location: Location
+  ) {
     this.loginForm = fb.group({
       username: fb.control('', [
         Validators.minLength(3),
@@ -54,6 +64,16 @@ export class LoginComponent {
 
     console.log(this.loginForm.get('username'));
     console.log(this.loginForm.get('password'));
+  }
+
+  ngOnInit(): void {
+    console.log(this.jwtService.getToken());
+    if (this.jwtService.checkAuth()) {
+      console.log('back');
+      this.location.back();
+    } else {
+      this.loading = false;
+    }
   }
 
   get username() {
@@ -83,10 +103,17 @@ export class LoginComponent {
     if (this.loginForm.invalid) return;
     console.log(this.loginForm.value);
     this.authService.login(this.loginForm.value).subscribe({
-      error: (err) => console.log(err),
+      error: (err: any) => {
+        if (err.status === 400 && err.error.status == 'FAIL') {
+          this.authFail = true;
+          return;
+        }
+        this.unexpectedError = true;
+      },
       next: (res: any) => {
-        console.log(res);
-        this.authService.setToken(res.token);
+        this.jwtService.setToken(res.token);
+        this.jwtService.setTokenLocalStorage(res.token);
+        this.router.navigate(['/']);
       },
     });
   }

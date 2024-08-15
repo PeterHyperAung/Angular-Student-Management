@@ -7,27 +7,33 @@ import { HomeComponent } from './home/home.component';
 import { LogoutComponent } from './logout/logout.component';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'students',
     component: StudentsListComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'students/create',
     component: StudentFormComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'schools',
     component: SchoolsListComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'schools/create',
     component: SchoolFormComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'login',
@@ -40,5 +46,6 @@ export const routes: Routes = [
   {
     path: 'logout',
     component: LogoutComponent,
+    canActivate: [AuthGuard],
   },
 ];

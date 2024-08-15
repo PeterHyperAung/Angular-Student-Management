@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../environments/environment';
 import { AuthRequestBody } from '../interfaces/auth';
+import { JwtService } from './jwt.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,28 +11,20 @@ import { AuthRequestBody } from '../interfaces/auth';
 export class AuthService {
   private apiUrl = environment.apiUrl;
   private token: string = '';
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    jwtService: JwtService
+  ) {}
 
   login(body: AuthRequestBody) {
     return this.http.post(`${this.apiUrl}/login`, body);
   }
 
-  public setToken(token: string) {
-    this.token = token;
-    localStorage.setItem('TOKEN', token);
-  }
-
-  getToken() {
-    return localStorage.getItem('TOKEN');
-  }
-
-  checkToken() {
-    const token = localStorage.getItem('TOKEN');
-    return this.token === token;
-  }
+  validateAuth() {}
 
   signup(body: AuthRequestBody) {
-    return this.http.post(`${this.apiUrl}/signup`, body);
+    return this.http.post(`${this.apiUrl}/register`, body);
   }
 
   logout() {

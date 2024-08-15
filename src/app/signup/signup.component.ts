@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
@@ -14,6 +14,10 @@ import { NzFlexModule } from 'ng-zorro-antd/flex';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzCardComponent } from 'ng-zorro-antd/card';
+import { JwtService } from '../service/jwt.service';
+import { Location } from '@angular/common';
+import { AuthService } from '../service/auth.service';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @Component({
   selector: 'app-signup',
@@ -28,14 +32,23 @@ import { NzCardComponent } from 'ng-zorro-antd/card';
     NzCardComponent,
     NzTypographyModule,
     NzFlexModule,
+    NzAlertModule,
   ],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   signupForm: FormGroup;
+  loading: boolean = true;
+  unexpectedError: boolean = false;
 
-  constructor(fb: FormBuilder) {
+  constructor(
+    fb: FormBuilder,
+    private authService: AuthService,
+    private jwtService: JwtService,
+    private router: Router,
+    private location: Location
+  ) {
     this.signupForm = fb.group({
       username: fb.control('', [
         Validators.minLength(3),
@@ -51,6 +64,16 @@ export class SignupComponent {
 
     console.log(this.signupForm.get('username'));
     console.log(this.signupForm.get('password'));
+  }
+
+  ngOnInit(): void {
+    console.log(this.jwtService.getToken());
+    if (this.jwtService.checkAuth()) {
+      console.log('back');
+      this.location.back();
+    } else {
+      this.loading = false;
+    }
   }
 
   get username() {
@@ -72,11 +95,25 @@ export class SignupComponent {
     if (control?.hasError('maxlength')) {
       return `Maximum length is ${control.errors?.['maxlength'].requiredLength}`;
     }
+    if (control?.hasError('isTaken')) {
+      return 'Username is already taken';
+    }
 
     return '';
   }
 
   submitForm(): void {
-    console.log(this.signupForm.value);
+    this.authService.signup(this.signupForm.value).subscribe({
+      error: (err) => {
+        console.log(err);
+        if (err.status === 401 && err.error.status === 'FAIL') {
+          return this.signupForm.get('username')?.setErrors({ isTaken: true });
+        }
+        this.unexpectedError = true;
+      },
+      next: (res: any) => {
+        this.router.navigate(['/login']);
+      },
+    });
   }
 }

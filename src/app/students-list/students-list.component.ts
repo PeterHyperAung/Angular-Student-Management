@@ -60,7 +60,8 @@ export class StudentsListComponent {
       name: 'Started At',
       sortOrder: null,
       sortFn: (a: Student, b: Student) =>
-        new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime(),
+        new Date(a.startedAt ?? '').getTime() -
+        new Date(b.startedAt ?? '').getTime(),
     },
   ];
   listOfData: Students = [
@@ -126,8 +127,8 @@ export class StudentsListComponent {
     this.router.navigate(['/students/create']);
   }
 
-  toDateString(date: string | Date): string {
-    if (!date) return '';
+  toDateString(date: string | Date | null | undefined): string {
+    if (!date) return 'No date selected';
     if (typeof date === 'string') date = new Date(date);
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
   }

@@ -1,1 +1,122 @@
-<p>student-form works!</p>
+<div style="padding: 0 10px">
+  <nz-card style="max-width: 400px; margin: 10px auto">
+    <h3 style="margin-bottom: 20px; text-align: center">Student Form</h3>
+    <form nz-form [formGroup]="studentForm" (ngSubmit)="submit()">
+      <nz-form-item nzFlex style="margin-bottom: 10px">
+        <nz-form-label nzSpan="24">Name</nz-form-label>
+        <nz-form-control nzSpan="24">
+          <nz-input-group style="margin-bottom: 5px">
+            <input
+              type="text"
+              nz-input
+              formControlName="name"
+              placeholder="Name"
+            />
+          </nz-input-group>
+          <p
+            *ngIf="name?.invalid && name?.touched"
+            nz-typography
+            nzType="danger"
+          >
+            {{ getErrorMessage("name") }}
+          </p>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nzFlex style="margin-bottom: 10px">
+        <nz-form-label nzSpan="24">Email</nz-form-label>
+        <nz-form-control nzSpan="24">
+          <nz-input-group style="margin-bottom: 5px">
+            <input
+              type="text"
+              nz-input
+              formControlName="email"
+              placeholder="Email"
+            />
+          </nz-input-group>
+          <p
+            *ngIf="email?.invalid && email?.touched"
+            nz-typography
+            nzType="danger"
+          >
+            {{ getErrorMessage("email") }}
+          </p>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nzFlex style="margin-bottom: 10px">
+        <nz-form-label nzSpan="24">Date of birth</nz-form-label>
+        <nz-form-control nzSpan="24">
+          <nz-input-group style="margin-bottom: 5px">
+            <nz-date-picker
+              formControlName="dateOfBirth"
+              style="width: 100%"
+            ></nz-date-picker>
+          </nz-input-group>
+          <p
+            *ngIf="dateOfBirth?.invalid && dateOfBirth?.touched"
+            nz-typography
+            nzType="danger"
+          >
+            {{ getErrorMessage("dateOfBirth") }}
+          </p>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nzFlex style="margin-bottom: 10px">
+        <nz-form-label nzSpan="24">School</nz-form-label>
+        <nz-form-control nzSpan="24">
+          <nz-input-group style="margin-bottom: 5px">
+            <nz-select formControlName="schoolId">
+              <nz-option
+                *ngFor="let school of schools"
+                [nzValue]="school.id"
+                [nzLabel]="school.name"
+              ></nz-option>
+            </nz-select>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nzFlex>
+        <nz-form-label nzSpan="24">Started At</nz-form-label>
+        <nz-form-control nzSpan="24">
+          <nz-input-group style="margin-bottom: 5px">
+            <nz-date-picker
+              formControlName="startedAt"
+              style="width: 100%"
+            ></nz-date-picker>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div class="login-form-margin">
+        <div
+          nz-row
+          nzJustify="center"
+          nzAlign="middle"
+          style="margin-bottom: 20px"
+        >
+          <button
+            nz-button
+            class="login-form-button login-form-margin"
+            [nzType]="'primary'"
+            [disabled]="studentForm.invalid"
+          >
+            Log in
+          </button>
+        </div>
+        <div
+          nz-row
+          nzJustify="center"
+          nzAlign="middle"
+          style="margin-bottom: 20px"
+        >
+          <a class="login-form-forgot" routerLink="/signup"
+            >Doesn't have an account?</a
+          >
+        </div>
+      </div>
+    </form>
+  </nz-card>
+</div>
