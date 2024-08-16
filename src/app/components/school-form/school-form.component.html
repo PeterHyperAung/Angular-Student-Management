@@ -1,0 +1,66 @@
+<div style="padding: 0 10px">
+  <nz-card style="max-width: 400px; margin: 10px auto 30px">
+    <h3 style="margin-bottom: 20px; text-align: center">School Form</h3>
+    <form nz-form [formGroup]="schoolForm" (ngSubmit)="submit()">
+      <nz-form-item nzFlex style="margin-bottom: 10px">
+        <nz-form-label nzSpan="24">Name</nz-form-label>
+        <nz-form-control nzSpan="24">
+          <nz-input-group style="margin-bottom: 5px">
+            <input
+              type="text"
+              nz-input
+              formControlName="name"
+              placeholder="Name"
+            />
+          </nz-input-group>
+          <p
+            *ngIf="name?.invalid && name?.touched"
+            nz-typography
+            nzType="danger"
+          >
+            {{ getErrorMessage("name") }}
+          </p>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nzFlex>
+        <nz-form-label nzSpan="24">Principal</nz-form-label>
+        <nz-form-control nzSpan="24">
+          <nz-input-group style="margin-bottom: 5px">
+            <input
+              type="text"
+              nz-input
+              formControlName="principal"
+              placeholder="Principal"
+            />
+          </nz-input-group>
+          <p
+            *ngIf="principal?.invalid && principal?.touched"
+            nz-typography
+            nzType="danger"
+          >
+            {{ getErrorMessage("principal") }}
+          </p>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div class="login-form-margin">
+        <div
+          nz-row
+          nzJustify="center"
+          nzAlign="middle"
+          style="margin-bottom: 20px"
+        >
+          <button
+            nz-button
+            class="login-form-button login-form-margin"
+            [nzType]="'primary'"
+            [disabled]="schoolForm.invalid"
+          >
+            {{ btnText }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+</div>

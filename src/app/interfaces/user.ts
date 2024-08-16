@@ -1,6 +1,6 @@
-export type User = {
+export interface IUser {
   id: number;
   username: string;
-  password: string;
-  role: 'ROLE_ADMIN' | 'ROLE_USER';
-};
+  role: 'ADMIN' | 'USER';
+  isAdmin(): boolean;
+}

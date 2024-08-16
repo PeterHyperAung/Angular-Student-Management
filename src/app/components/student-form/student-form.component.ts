@@ -17,9 +17,10 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
-import { School } from '../interfaces/school';
-import { SchoolsService } from '../service/schools.service';
-import { StudentsService } from '../service/students.service';
+import { ISchool } from '../../interfaces/school';
+import { SchoolsService } from '../../service/schools.service';
+import { StudentsService } from '../../service/students.service';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-student-form',
@@ -43,12 +44,13 @@ import { StudentsService } from '../service/students.service';
 })
 export class StudentFormComponent implements OnInit {
   studentForm: FormGroup;
-  schools: School[] = [];
+  schools: ISchool[] = [];
 
   constructor(
     fb: FormBuilder,
     private schoolsService: SchoolsService,
-    private studentService: StudentsService
+    private studentService: StudentsService,
+    private message: NzMessageService
   ) {
     this.studentForm = fb.group({
       name: fb.control('', [
@@ -112,8 +114,10 @@ export class StudentFormComponent implements OnInit {
 
   submit(): void {
     this.studentService.createStudent(this.studentForm.value).subscribe({
-      next(data) {
+      next: (data) => {
         console.log(data);
+        this.studentForm.reset();
+        this.message.success('Student created successfully');
       },
       error(err) {
         console.log(err);

@@ -14,8 +14,8 @@ import { NzFlexModule } from 'ng-zorro-antd/flex';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzCardComponent } from 'ng-zorro-antd/card';
-import { AuthService } from '../service/auth.service';
-import { JwtService } from '../service/jwt.service';
+import { AuthService } from '../../../service/auth.service';
+import { JwtService } from '../../../service/jwt.service';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @Component({
@@ -61,15 +61,10 @@ export class LoginComponent implements OnInit {
         Validators.required,
       ]),
     });
-
-    console.log(this.loginForm.get('username'));
-    console.log(this.loginForm.get('password'));
   }
 
   ngOnInit(): void {
-    console.log(this.jwtService.getToken());
     if (this.jwtService.checkAuth()) {
-      console.log('back');
       this.location.back();
     } else {
       this.loading = false;
@@ -101,7 +96,6 @@ export class LoginComponent implements OnInit {
 
   submitForm(): void {
     if (this.loginForm.invalid) return;
-    console.log(this.loginForm.value);
     this.authService.login(this.loginForm.value).subscribe({
       error: (err: any) => {
         if (err.status === 400 && err.error.status == 'FAIL') {

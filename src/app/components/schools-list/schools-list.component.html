@@ -1,0 +1,54 @@
+<div style="padding: 30px 0">
+  <div class="table">
+    <div class="table-operations">
+      <button nz-button (click)="create()" nzType="primary">
+        Create School
+      </button>
+    </div>
+    <nz-table
+      #table
+      nzShowSizeChanger
+      [nzData]="schoolsList"
+      [nzFrontPagination]="false"
+      [nzLoading]="loading"
+      [nzTotal]="total"
+      [nzPageSize]="pageSize"
+      [nzPageIndex]="pageIndex"
+      (nzQueryParams)="onQueryParamsChange($event)"
+    >
+      <thead>
+        <tr>
+          @for (column of listOfColumns; track trackByName) { @if
+          (column.sortOrder && column.sortFn) {
+          <th [(nzSortOrder)]="column.sortOrder" [nzSortFn]="column.sortFn">
+            {{ column.name }}
+          </th>
+          } @else {
+          <th>{{ column.name }}</th>
+          } }
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of table.data; trackBy: trackBySchoolId">
+          <td>{{ data.id }}</td>
+          <td>{{ data.name }}</td>
+          <td>{{ data.principal }}</td>
+          <td>
+            <button nz-button nzType="primary" (click)="onSchoolEdit(data.id)">
+              Edit
+            </button>
+            <nz-divider nzType="vertical"></nz-divider>
+            <button
+              nz-button
+              nzType="primary"
+              nzDanger
+              (click)="onSchoolDelete(data.id)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

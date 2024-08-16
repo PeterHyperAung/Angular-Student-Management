@@ -1,7 +1,5 @@
-import { Student } from './student';
-
-export type School = {
+export interface ISchool {
   id: number;
   name: string;
   principal: string;
-};
+}

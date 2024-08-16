@@ -23,7 +23,7 @@
         <td>{{ data.name }}</td>
         <td>{{ data.email }}</td>
         <td>{{ toDateString(data.dateOfBirth) }}</td>
-        <td>{{ data.school.name }}</td>
+        <td>{{ data.school?.name ?? "No School" }}</td>
         <td>{{ toDateString(data.startedAt) }}</td>
       </tr>
     </tbody>

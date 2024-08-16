@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { StudentsListComponent } from './students-list/students-list.component';
-import { HeaderComponent } from './header/header.component';
-import { AuthService } from './service/auth.service';
+import { StudentsListComponent } from './components/students-list/students-list.component';
+import { HeaderComponent } from './components/layout/header/header.component';
 import { JwtService } from './service/jwt.service';
 
 @Component({

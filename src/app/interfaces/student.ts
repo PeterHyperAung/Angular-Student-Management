@@ -1,12 +1,10 @@
-import { School } from './school';
+import { ISchool } from './school';
 
-export type Student = {
+export interface IStudent {
   id: number;
   name: string;
   email: string;
   dateOfBirth: string;
-  school: School;
+  school?: ISchool;
   startedAt: string | null;
-};
-
-export type Students = Student[];
+}

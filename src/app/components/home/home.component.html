@@ -1,0 +1,11 @@
+<div class="home--container">
+  <h3>Welcome to Student Management. {{ user?.username }} !!!</h3>
+  <p>
+    @if(!loading){ @if(user?.isAdmin()) { You are an admin. } @else { You are a
+    normal user} }
+  </p>
+  <div class="home--links-container">
+    <a routerLink="/students">Students List</a>
+    <a routerLink="/schools">Schools List</a>
+  </div>
+</div>

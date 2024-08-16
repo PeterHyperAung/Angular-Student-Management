@@ -1,8 +1,8 @@
-export type AuthRequestBody = {
+export interface IAuthRequestBody {
   username: string;
   password: string;
-};
+}
 
-export type AuthTokenStatus = {
+export interface IAuthTokenStatus {
   status: 'SUCCESS' | 'FAIL';
-};
+}

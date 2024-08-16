@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { Student } from '../interfaces/student';
+import { IStudent } from '../interfaces/student';
 import { DatePipe } from '@angular/common';
 
 @Injectable({
@@ -13,29 +13,29 @@ export class StudentsService {
   constructor(private http: HttpClient, private datePipe: DatePipe) {}
 
   getAllStudents() {
-    return this.http.get<Student[]>(`${this.apiUrl}/students`);
+    return this.http.get<IStudent[]>(`${this.apiUrl}/students`);
   }
 
   getPaginateStudents() {
-    return this.http.get<Student[]>(`${this.apiUrl}/students`);
+    return this.http.get<IStudent[]>(`${this.apiUrl}/students`);
   }
 
   getStudent(studentId: number) {
-    return this.http.get<Student[]>(`${this.apiUrl}/students/${studentId}`);
+    return this.http.get<IStudent[]>(`${this.apiUrl}/students/${studentId}`);
   }
 
-  createStudent(body: Student) {
+  createStudent(body: IStudent) {
     body.dateOfBirth = this.datePipe.transform(
       body.dateOfBirth,
       'yyyy-MM-dd'
     ) as string;
     body.startedAt = this.datePipe.transform(body.dateOfBirth, 'yyyy-MM-dd');
     console.log(body);
-    return this.http.post<Student>(`${this.apiUrl}/students/student`, body);
+    return this.http.post<IStudent>(`${this.apiUrl}/students/student`, body);
   }
 
-  updateStudent(body: Student) {
-    return this.http.patch<Student>(`${this.apiUrl}/students`, body);
+  updateStudent(body: IStudent) {
+    return this.http.patch<IStudent>(`${this.apiUrl}/students`, body);
   }
 
   deleteStudent(studentId: number) {

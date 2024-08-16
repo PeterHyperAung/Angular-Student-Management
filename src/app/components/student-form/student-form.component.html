@@ -1,5 +1,5 @@
 <div style="padding: 0 10px">
-  <nz-card style="max-width: 400px; margin: 10px auto">
+  <nz-card style="max-width: 400px; margin: 10px auto 30px">
     <h3 style="margin-bottom: 20px; text-align: center">Student Form</h3>
     <form nz-form [formGroup]="studentForm" (ngSubmit)="submit()">
       <nz-form-item nzFlex style="margin-bottom: 10px">
@@ -103,18 +103,8 @@
             [nzType]="'primary'"
             [disabled]="studentForm.invalid"
           >
-            Log in
+            Create
           </button>
-        </div>
-        <div
-          nz-row
-          nzJustify="center"
-          nzAlign="middle"
-          style="margin-bottom: 20px"
-        >
-          <a class="login-form-forgot" routerLink="/signup"
-            >Doesn't have an account?</a
-          >
         </div>
       </div>
     </form>

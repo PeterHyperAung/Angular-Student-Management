@@ -14,9 +14,9 @@ import { NzFlexModule } from 'ng-zorro-antd/flex';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzCardComponent } from 'ng-zorro-antd/card';
-import { JwtService } from '../service/jwt.service';
+import { JwtService } from '../../../service/jwt.service';
 import { Location } from '@angular/common';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../../../service/auth.service';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @Component({
@@ -61,15 +61,10 @@ export class SignupComponent implements OnInit {
         Validators.required,
       ]),
     });
-
-    console.log(this.signupForm.get('username'));
-    console.log(this.signupForm.get('password'));
   }
 
   ngOnInit(): void {
-    console.log(this.jwtService.getToken());
     if (this.jwtService.checkAuth()) {
-      console.log('back');
       this.location.back();
     } else {
       this.loading = false;

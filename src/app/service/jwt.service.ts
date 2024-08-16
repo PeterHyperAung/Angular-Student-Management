@@ -56,7 +56,7 @@ export class JwtService {
     return this.token === token;
   }
 
-  parseJwt(token: string) {
+  parseJwt() {
     try {
       const parts = this.getLocalStroageToken()?.split('.') ?? '';
 
@@ -76,7 +76,7 @@ export class JwtService {
   }
 
   isLocalStorageTokenExpire() {
-    const decoded = this.parseJwt(this.getLocalStroageToken() ?? '');
+    const decoded = this.parseJwt();
     if (!decoded) {
       return false;
     }

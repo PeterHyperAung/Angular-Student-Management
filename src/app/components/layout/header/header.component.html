@@ -4,7 +4,9 @@
       <a routerLink="/" class="nav-item">Home</a>
       <a routerLink="/students" class="nav-item">Students</a>
       <a routerLink="/schools" class="nav-item">Schools</a>
-      <a routerLink="/logout" class="nav-item">Logout</a>
+      <a routerLink="/logout" [queryParams]="{logoutDenyUrl}" class="nav-item"
+        >Logout</a
+      >
     </nz-space>
   </nz-page-header-extra>
 </nz-page-header>

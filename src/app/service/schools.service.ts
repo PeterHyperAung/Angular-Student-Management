@@ -1,8 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { School } from '../interfaces/school';
+import { ISchool } from '../interfaces/school';
 import { environment } from '../environments/environment';
 import { JwtService } from './jwt.service';
+import { IPaginateInfo, IPaginateResponse } from '../interfaces/paginate';
+import { School } from '../models/school.model';
 
 @Injectable({
   providedIn: 'root',
@@ -13,23 +15,26 @@ export class SchoolsService {
   constructor(private http: HttpClient, private jwtService: JwtService) {}
 
   getAllSchools() {
-    const token = this.jwtService.getLocalStroageToken();
+    return this.http.get<ISchool[]>(`${this.apiUrl}/schools`);
+  }
 
-    return this.http.get<School[]>(`${this.apiUrl}/schools`);
+  getPaginateSchools(paginateQueryInfo: IPaginateInfo) {
+    return this.http.post<IPaginateResponse<School>>(
+      `${this.apiUrl}/schools/nz-paginate`,
+      paginateQueryInfo
+    );
   }
 
   getSchool(schoolId: number) {
-    return this.http.get<School[]>(`${this.apiUrl}/schools/${schoolId}`);
+    return this.http.get<ISchool[]>(`${this.apiUrl}/schools/${schoolId}`);
   }
 
-  createSchool(body: School) {
-    return this.http.post<School>(`${this.apiUrl}/schools`, {
-      body,
-    });
+  createSchool(body: ISchool) {
+    return this.http.post<ISchool>(`${this.apiUrl}/schools/school`, body);
   }
 
-  updateSchool(body: School) {
-    return this.http.patch<School>(`${this.apiUrl}/schools`, {
+  updateSchool(body: ISchool, id: number) {
+    return this.http.patch<ISchool>(`${this.apiUrl}/schools/${id}`, {
       body,
     });
   }

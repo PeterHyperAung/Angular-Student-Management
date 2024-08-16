@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../environments/environment';
-import { AuthRequestBody } from '../interfaces/auth';
+import { IAuthRequestBody } from '../interfaces/auth';
 import { JwtService } from './jwt.service';
 
 @Injectable({
@@ -14,16 +14,14 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    jwtService: JwtService
+    private jwtService: JwtService
   ) {}
 
-  login(body: AuthRequestBody) {
+  login(body: IAuthRequestBody) {
     return this.http.post(`${this.apiUrl}/login`, body);
   }
 
-  validateAuth() {}
-
-  signup(body: AuthRequestBody) {
+  signup(body: IAuthRequestBody) {
     return this.http.post(`${this.apiUrl}/register`, body);
   }
 
