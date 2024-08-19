@@ -3,6 +3,7 @@ import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { IStudent } from '../interfaces/student';
 import { DatePipe } from '@angular/common';
+import { IPaginateInfo, IPaginateResponse } from '../interfaces/paginate';
 
 @Injectable({
   providedIn: 'root',
@@ -16,8 +17,11 @@ export class StudentsService {
     return this.http.get<IStudent[]>(`${this.apiUrl}/students`);
   }
 
-  getPaginateStudents() {
-    return this.http.get<IStudent[]>(`${this.apiUrl}/students`);
+  getPaginateStudents(paginateQueryInfo: IPaginateInfo) {
+    return this.http.post<IPaginateResponse<IStudent>>(
+      `${this.apiUrl}/students/nz-paginate`,
+      paginateQueryInfo
+    );
   }
 
   getStudent(studentId: number) {
@@ -34,8 +38,11 @@ export class StudentsService {
     return this.http.post<IStudent>(`${this.apiUrl}/students/student`, body);
   }
 
-  updateStudent(body: IStudent) {
-    return this.http.patch<IStudent>(`${this.apiUrl}/students`, body);
+  updateStudent(body: IStudent, studentId: number) {
+    return this.http.patch<IStudent>(
+      `${this.apiUrl}/students/${studentId}`,
+      body
+    );
   }
 
   deleteStudent(studentId: number) {

@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzCardComponent } from 'ng-zorro-antd/card';
@@ -43,15 +43,21 @@ import { NzMessageService } from 'ng-zorro-antd/message';
   styleUrl: './student-form.component.css',
 })
 export class StudentFormComponent implements OnInit {
+  id: number | null = null;
   studentForm: FormGroup;
   schools: ISchool[] = [];
+  loading = true;
 
   constructor(
     fb: FormBuilder,
     private schoolsService: SchoolsService,
     private studentService: StudentsService,
+    private router: Router,
+    private route: ActivatedRoute,
     private message: NzMessageService
   ) {
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+
     this.studentForm = fb.group({
       name: fb.control('', [
         Validators.minLength(3),
@@ -100,24 +106,59 @@ export class StudentFormComponent implements OnInit {
     return this.studentForm.get('schoolId');
   }
 
+  get btnText(): string {
+    return this.id ? 'Update' : 'Create';
+  }
+
   ngOnInit(): void {
     this.schoolsService.getAllSchools().subscribe({
+      next: (data) => {
+        this.schools = data;
+      },
       error: (err) => {
         console.log(err);
       },
-      next: (schools) => {
-        console.log(schools);
-        this.schools = schools;
-      },
     });
+
+    if (this.id) {
+      this.studentService.getStudent(this.id).subscribe({
+        next: (data) => {
+          this.studentForm.patchValue(data);
+          this.loading = false;
+        },
+        error(err) {
+          console.log(err);
+        },
+      });
+    } else {
+      this.loading = false;
+    }
   }
 
   submit(): void {
+    if (this.id) this.updateStudent();
+    else this.createStudent();
+  }
+
+  private updateStudent() {
+    this.studentService
+      .updateStudent(this.studentForm.value, this.id as number)
+      .subscribe({
+        next: (data) => {
+          this.studentForm.reset();
+          this.router.navigate(['/students']);
+        },
+        error(err) {
+          console.log(err);
+        },
+      });
+  }
+
+  private createStudent() {
     this.studentService.createStudent(this.studentForm.value).subscribe({
       next: (data) => {
-        console.log(data);
         this.studentForm.reset();
-        this.message.success('Student created successfully');
+        this.router.navigate(['/students']);
       },
       error(err) {
         console.log(err);

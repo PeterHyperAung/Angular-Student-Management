@@ -2,7 +2,7 @@ export interface IPaginateInfo {
   pageIndex: number;
   pageSize: number;
   sortField: string;
-  sortOrder: 'asc' | 'desc' | null;
+  sortOrder: 'ascend' | 'descend' | null;
   searchValues: {
     key: string;
     value: string;
@@ -42,9 +42,6 @@ export const initialPaginateInfo: IPaginateInfo = {
   pageIndex: 1,
   pageSize: 10,
   sortField: 'id',
-  sortOrder: 'asc',
-  searchValues: [
-    { key: 'name', value: '' },
-    { key: 'principal', value: '' },
-  ],
+  sortOrder: 'ascend',
+  searchValues: [],
 };

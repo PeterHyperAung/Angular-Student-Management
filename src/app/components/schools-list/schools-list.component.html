@@ -16,18 +16,11 @@
       [nzPageIndex]="pageIndex"
       (nzQueryParams)="onQueryParamsChange($event)"
     >
-      <thead>
-        <tr>
-          @for (column of listOfColumns; track trackByName) { @if
-          (column.sortOrder && column.sortFn) {
-          <th [(nzSortOrder)]="column.sortOrder" [nzSortFn]="column.sortFn">
-            {{ column.name }}
-          </th>
-          } @else {
-          <th>{{ column.name }}</th>
-          } }
-        </tr>
-      </thead>
+      <app-table-column
+        [listOfColumns]="listOfColumns"
+        (search)="onSearch($event)"
+        (reset)="onReset($event)"
+      ></app-table-column>
       <tbody>
         <tr *ngFor="let data of table.data; trackBy: trackBySchoolId">
           <td>{{ data.id }}</td>

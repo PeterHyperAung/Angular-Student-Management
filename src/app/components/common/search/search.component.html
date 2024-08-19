@@ -1,0 +1,29 @@
+<nz-filter-trigger
+  [(nzVisible)]="visible"
+  [nzActive]="value.length > 0"
+  [nzDropdownMenu]="menu"
+>
+  <span nz-icon nzType="search"> </span>
+</nz-filter-trigger>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <div class="ant-table-filter-dropdown">
+    <div class="search-box">
+      <input
+        type="text"
+        nz-input
+        [placeholder]="'Search ' + columnName"
+        [(ngModel)]="value"
+      />
+      <button
+        nz-button
+        nzSize="small"
+        nzType="primary"
+        (click)="search.emit({ value, fieldName })"
+        class="search-button"
+      >
+        Search
+      </button>
+      <button nz-button nzSize="small" (click)="onReset()">Reset</button>
+    </div>
+  </div>
+</nz-dropdown-menu>

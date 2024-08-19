@@ -6,6 +6,7 @@ import {
   NzTableFilterFn,
   NzTableFilterList,
   NzTableModule,
+  NzTableQueryParams,
   NzTableSortFn,
   NzTableSortOrder,
 } from 'ng-zorro-antd/table';
@@ -14,31 +15,221 @@ import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { Router } from '@angular/router';
 import { SchoolsService } from '../../service/schools.service';
 import { initialPaginateInfo, IPaginateInfo } from '../../interfaces/paginate';
+import { Student } from '../../models/student.model';
+import { StudentsService } from '../../service/students.service';
+import { TableColumnComponent } from '../common/table-column/table-column.component';
+import { NzDividerComponent } from 'ng-zorro-antd/divider';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { ColumnItem } from '../common/table-column/table-column.component';
 
-interface ColumnItem {
-  name: string;
-  sortOrder: NzTableSortOrder | null;
-  sortFn: NzTableSortFn<IStudent> | null;
-}
+type filterItem = 'name' | 'email' | 'school_id';
 
 @Component({
   selector: 'app-students-list',
   standalone: true,
   templateUrl: './students-list.component.html',
   styleUrls: ['./students-list.component.css'],
-  imports: [CommonModule, NzTableModule, NzButtonComponent],
+  imports: [
+    CommonModule,
+    NzTableModule,
+    NzButtonComponent,
+    NzDividerComponent,
+    TableColumnComponent,
+  ],
 })
 export class StudentsListComponent implements OnInit {
+  total = 0;
   loading = true;
-  listOfColumns: ColumnItem[] = [];
+  pageSize = 10;
+  pageIndex = 1;
+  studentsList: IStudent[] = [];
+  filter: { key: filterItem; value: string }[] = [
+    {
+      key: 'name',
+      value: '',
+    },
+    {
+      key: 'email',
+      value: '',
+    },
+    {
+      key: 'school_id',
+      value: '',
+    },
+  ];
+  sortField = 'id';
+  sortOrder: 'ascend' | 'descend' | null = null;
+  listOfColumns: ColumnItem<Student>[] = [
+    {
+      name: 'Id',
+      sortOrder: 'ascend',
+      sortDirections: ['ascend', 'descend'],
+      sortFn(a: IStudent, b: IStudent) {
+        return a.id - b.id;
+      },
+    },
+    {
+      name: 'Name',
+      sortOrder: 'ascend',
+      sortDirections: ['ascend', 'descend'],
+      sortFn: (a: IStudent, b: IStudent) => a.name.localeCompare(b.name),
+    },
+    {
+      name: 'Email',
+      sortOrder: 'ascend',
+      sortDirections: ['ascend', 'descend'],
+      sortFn: (a: IStudent, b: IStudent) => a.email.localeCompare(b.email),
+    },
+    {
+      name: 'School',
+      sortOrder: 'ascend',
+      sortDirections: ['ascend', 'descend'],
+      sortFn(a: IStudent, b: IStudent) {
+        let firstSchool = a.school?.name ?? '';
+        let secondSchool = b.school?.name ?? '';
+        return firstSchool.localeCompare(secondSchool);
+      },
+      fieldName: 'school.name',
+    },
+    {
+      name: 'Date of Birth',
+      sortOrder: 'ascend',
+      sortDirections: ['ascend', 'descend'],
+      sortFn(a: IStudent, b: IStudent) {
+        const first = new Date(a.dateOfBirth).getTime();
+        const second = new Date(b.dateOfBirth).getTime();
+        return first - second;
+      },
+      fieldName: 'dateOfBirth',
+    },
+    {
+      name: 'Started At',
+      sortOrder: 'ascend',
+      sortDirections: ['ascend', 'descend'],
+      sortFn(a: IStudent, b: IStudent) {
+        const first = new Date(a.dateOfBirth).getTime();
+        const second = new Date(b.dateOfBirth).getTime();
+
+        return first - second;
+      },
+      fieldName: 'startedAt',
+    },
+    {
+      name: 'Actions',
+    },
+  ];
   listOfData: IStudent[] = [];
-  paginateQueryInfo: IPaginateInfo = { ...initialPaginateInfo };
+  paginateQueryInfo: IPaginateInfo = {
+    ...initialPaginateInfo,
+    searchValues: [
+      { key: 'name', value: '' },
+      { key: 'email', value: '' },
+      { key: 'student_id', value: '' },
+    ],
+  };
 
-  constructor(private router: Router, private schoolsService: SchoolsService) {}
+  constructor(
+    private router: Router,
+    private studentsService: StudentsService,
+    private message: NzMessageService
+  ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.studentsService.getPaginateStudents(this.paginateQueryInfo).subscribe({
+      next: (data) => {
+        this.studentsList = data.content;
+        this.pageIndex = data.pageable.pageNumber + 1;
+        this.pageSize = data.pageable.pageSize;
+        this.total = data.totalElements;
+        this.loading = false;
+      },
+    });
+  }
 
-  trackByName(_: number, item: ColumnItem): string {
+  onSearch({ fieldName, value }: { fieldName: string; value: string }): void {
+    this.filter.forEach((item) => {
+      if (item.key === fieldName) {
+        item.value = value.trim();
+      }
+    });
+
+    const params = {
+      pageSize: this.pageSize,
+      pageIndex: this.pageIndex,
+      sort: [],
+      filter: [...this.filter],
+    } satisfies NzTableQueryParams;
+    console.log(params);
+
+    this.onQueryParamsChange(params);
+  }
+
+  onReset(fieldName: string): void {
+    this.filter.forEach((item) => {
+      if (item.key === fieldName) {
+        item.value = '';
+      }
+    });
+
+    const params = {
+      pageSize: this.pageSize,
+      pageIndex: this.pageIndex,
+      sort: [],
+      filter: [...this.filter],
+    } satisfies NzTableQueryParams;
+    console.log(params);
+
+    this.onQueryParamsChange(params);
+  }
+
+  onQueryParamsChange(params: NzTableQueryParams): void {
+    const { pageSize, pageIndex, sort, filter: searchValues } = params;
+
+    for (let i = 0; i < sort.length; i++) {
+      if (sort[i].value) {
+        const col = this.listOfColumns[i];
+        this.sortField = col.fieldName ?? col.name.toLowerCase();
+        this.sortOrder =
+          (sort[i] && (sort[i].value as 'ascend' | 'descend' | null)) ?? null;
+        break;
+      }
+    }
+
+    this.loading = true;
+    this.studentsService
+      .getPaginateStudents({
+        pageIndex,
+        pageSize,
+        sortField: this.sortField,
+        sortOrder: this.sortOrder,
+        searchValues: this.filter,
+      })
+      .subscribe((data) => {
+        this.loading = false;
+        this.pageIndex = data.pageable.pageNumber + 1;
+        this.pageSize = data.pageable.pageSize;
+        this.total = data.totalElements;
+        this.studentsList = data.content;
+      });
+  }
+
+  onStudentEdit(id: number) {
+    this.router.navigate([`/students/${id}`]);
+  }
+
+  onStudentDelete(id: number) {
+    this.studentsService.deleteStudent(id).subscribe({
+      next: () => {
+        this.studentsList = this.studentsList.filter(
+          (student) => student.id !== id
+        );
+        this.total -= 1;
+        this.message.success('Student deleted successfully');
+      },
+    });
+  }
+
+  trackByName(_: number, item: ColumnItem<Student>): string {
     return item.name;
   }
 
@@ -54,38 +245,5 @@ export class StudentsListComponent implements OnInit {
     if (!date) return 'No date selected';
     if (typeof date === 'string') date = new Date(date);
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-  }
-
-  sortByAge(): void {
-    this.listOfColumns.forEach((item) => {
-      if (item.name === 'Age') {
-        item.sortOrder = 'descend';
-      } else {
-        item.sortOrder = null;
-      }
-    });
-  }
-
-  // resetFilters(): void {
-  //   this.listOfColumns.forEach((item) => {
-  //     if (item.name === 'Name') {
-  //       item.listOfFilter = [
-  //         { text: 'Joe', value: 'Joe' },
-  //         { text: 'Jim', value: 'Jim' },
-  //       ];
-  //     } else if (item.name === 'Address') {
-  //       item.listOfFilter = [
-  //         { text: 'London', value: 'London' },
-  //         { text: 'Sidney', value: 'Sidney' },
-  //       ];
-  //     }
-  //   });
-  // }
-
-  resetSortAndFilters(): void {
-    this.listOfColumns.forEach((item) => {
-      item.sortOrder = null;
-    });
-    // this.resetFilters();
   }
 }

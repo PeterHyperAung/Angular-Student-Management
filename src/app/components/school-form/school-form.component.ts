@@ -108,6 +108,7 @@ export class SchoolFormComponent implements OnInit {
   }
 
   private createSchool() {
+    console.log(this.schoolForm.value);
     this.schoolsService.createSchool(this.schoolForm.value).subscribe({
       next: (data) => {
         console.log(data);

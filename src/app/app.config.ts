@@ -16,6 +16,8 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { initializeApp } from './initializer';
 import { JwtService } from './service/jwt.service';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { provideStore } from '@ngrx/store';
+import { reducers } from './components/store';
 
 registerLocaleData(en);
 
@@ -34,5 +36,6 @@ export const appConfig: ApplicationConfig = {
       multi: true,
     },
     DatePipe,
+    provideStore(reducers),
   ],
 };

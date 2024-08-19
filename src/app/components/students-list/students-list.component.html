@@ -4,27 +4,44 @@
       Create student
     </button>
   </div>
-  <nz-table #filterTable [nzData]="listOfData" nzTableLayout="fixed">
-    <thead>
-      <tr>
-        <th
-          *ngFor="let column of listOfColumns; trackBy: trackByName"
-          [(nzSortOrder)]="column.sortOrder"
-          [nzSortFn]="column.sortFn"
-          [nzWidth]="column.name.toLowerCase() == 'email' ? '250px' : ''"
-        >
-          {{ column.name }}
-        </th>
-      </tr>
-    </thead>
+  <nz-table
+    #table
+    [nzData]="studentsList"
+    [nzFrontPagination]="false"
+    [nzLoading]="loading"
+    [nzTotal]="total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    (nzQueryParams)="onQueryParamsChange($event)"
+    nzTableLayout="fixed"
+  >
+    <app-table-column
+      [listOfColumns]="listOfColumns"
+      (search)="onSearch($event)"
+      (reset)="onReset($event)"
+    ></app-table-column>
     <tbody>
-      <tr *ngFor="let data of filterTable.data; trackBy: trackByStudentId">
+      <tr *ngFor="let data of table.data; trackBy: trackByStudentId">
         <td>{{ data.id }}</td>
         <td>{{ data.name }}</td>
         <td>{{ data.email }}</td>
-        <td>{{ toDateString(data.dateOfBirth) }}</td>
         <td>{{ data.school?.name ?? "No School" }}</td>
+        <td>{{ toDateString(data.dateOfBirth) }}</td>
         <td>{{ toDateString(data.startedAt) }}</td>
+        <td>
+          <button nz-button nzType="primary" (click)="onStudentEdit(data.id)">
+            Edit
+          </button>
+          <nz-divider nzType="vertical"></nz-divider>
+          <button
+            nz-button
+            nzType="primary"
+            nzDanger
+            (click)="onStudentDelete(data.id)"
+          >
+            Delete
+          </button>
+        </td>
       </tr>
     </tbody>
   </nz-table>

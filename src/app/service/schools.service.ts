@@ -19,7 +19,7 @@ export class SchoolsService {
   }
 
   getPaginateSchools(paginateQueryInfo: IPaginateInfo) {
-    return this.http.post<IPaginateResponse<School>>(
+    return this.http.post<IPaginateResponse<ISchool>>(
       `${this.apiUrl}/schools/nz-paginate`,
       paginateQueryInfo
     );
@@ -34,9 +34,7 @@ export class SchoolsService {
   }
 
   updateSchool(body: ISchool, id: number) {
-    return this.http.patch<ISchool>(`${this.apiUrl}/schools/${id}`, {
-      body,
-    });
+    return this.http.patch<ISchool>(`${this.apiUrl}/schools/${id}`, body);
   }
 
   deleteSchool(schoolId: number) {
