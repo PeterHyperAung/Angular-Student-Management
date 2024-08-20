@@ -1,8 +1,10 @@
 <div class="home--container">
-  <h3>Welcome to Student Management. {{ user?.username }} !!!</h3>
+  <h3>Welcome to Student Management. {{ (user$ | async)?.username }} !!!</h3>
   <p>
-    @if(!loading){ @if(user?.isAdmin()) { You are an admin. } @else { You are a
-    normal user} }
+    <ng-container *ngIf="(user$ | async)?.role === 'ADMIN'; else normalUser">
+      You are an admin.
+    </ng-container>
+    <ng-template #normalUser> You are a normal user. </ng-template>
   </p>
   <div class="home--links-container">
     <a routerLink="/students">Students List</a>

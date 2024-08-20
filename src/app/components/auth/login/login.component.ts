@@ -17,6 +17,9 @@ import { NzCardComponent } from 'ng-zorro-antd/card';
 import { AuthService } from '../../../service/auth.service';
 import { JwtService } from '../../../service/jwt.service';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { Store } from '@ngrx/store';
+import { AuthState } from '../../store/auth/auth.state';
+import { login } from '../../store/auth/auth.actions';
 
 @Component({
   selector: 'app-login',
@@ -47,7 +50,8 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private jwtService: JwtService,
-    private location: Location
+    private location: Location,
+    private store: Store<AuthState>
   ) {
     this.loginForm = fb.group({
       username: fb.control('', [
@@ -105,8 +109,14 @@ export class LoginComponent implements OnInit {
         this.unexpectedError = true;
       },
       next: (res: any) => {
-        this.jwtService.setToken(res.token);
-        this.jwtService.setTokenLocalStorage(res.token);
+        const user = this.jwtService.parseJwt(res.token);
+        this.store.dispatch(
+          login({
+            username: user.username,
+            role: user.role,
+            token: res.token,
+          })
+        );
         this.router.navigate(['/']);
       },
     });

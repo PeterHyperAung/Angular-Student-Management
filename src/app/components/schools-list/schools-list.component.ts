@@ -1,12 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ISchool } from '../../interfaces/school';
 import { Router } from '@angular/router';
-import {
-  NzTableModule,
-  NzTableQueryParams,
-  NzTableSortFn,
-  NzTableSortOrder,
-} from 'ng-zorro-antd/table';
+import { NzTableModule, NzTableQueryParams } from 'ng-zorro-antd/table';
 import { CommonModule } from '@angular/common';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { SchoolsService } from '../../service/schools.service';
@@ -20,6 +15,10 @@ import {
   ColumnItem,
   TableColumnComponent,
 } from '../common/table-column/table-column.component';
+import { Store } from '@ngrx/store';
+import { AuthState } from '../store/auth/auth.state';
+import { map, Observable } from 'rxjs';
+import { selectRole } from '../store/auth/auth.selector';
 
 @Component({
   selector: 'app-schools-list',
@@ -37,6 +36,7 @@ import {
   styleUrl: './schools-list.component.css',
 })
 export class SchoolsListComponent implements OnInit {
+  isAdmin$: Observable<boolean>;
   total = 0;
   pageSize = 10;
   pageIndex = 1;
@@ -90,8 +90,13 @@ export class SchoolsListComponent implements OnInit {
   constructor(
     private router: Router,
     private schoolsService: SchoolsService,
-    private message: NzMessageService
-  ) {}
+    private message: NzMessageService,
+    private store: Store<AuthState>
+  ) {
+    this.isAdmin$ = this.store
+      .select(selectRole)
+      .pipe(map((role) => role === 'ADMIN'));
+  }
 
   ngOnInit(): void {
     this.schoolsService.getPaginateSchools(this.paginateQueryInfo).subscribe({

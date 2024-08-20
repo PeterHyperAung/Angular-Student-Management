@@ -1,16 +1,32 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { environment } from '../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AuthState } from '../components/store/auth/auth.state';
+import { selectToken } from '../components/store/auth/auth.selector';
 
 @Injectable({
   providedIn: 'root',
 })
-export class JwtService {
-  private token: string = '';
+export class JwtService implements OnDestroy {
+  private token: string | null = null;
   private apiUrl: string = environment.apiUrl;
+  private authSubscription: Subscription;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private store: Store<AuthState>) {
+    this.authSubscription = this.store.select(selectToken).subscribe({
+      next: (token) => {
+        if (!token) return;
+        this.token = token;
+        this.setTokenLocalStorage(token);
+      },
+    });
+  }
+
+  ngOnDestroy() {
+    this.authSubscription.unsubscribe();
+  }
 
   checkAuth(): boolean {
     return (
@@ -56,9 +72,9 @@ export class JwtService {
     return this.token === token;
   }
 
-  parseJwt() {
+  parseJwt(token: string) {
     try {
-      const parts = this.getLocalStroageToken()?.split('.') ?? '';
+      const parts = token.split('.') ?? '';
 
       if (parts.length != 3) {
         return null;
@@ -76,7 +92,7 @@ export class JwtService {
   }
 
   isLocalStorageTokenExpire() {
-    const decoded = this.parseJwt();
+    const decoded = this.parseJwt(this.getLocalStroageToken());
     if (!decoded) {
       return false;
     }

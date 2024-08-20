@@ -2,18 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 
-import {
-  NzTableFilterFn,
-  NzTableFilterList,
-  NzTableModule,
-  NzTableQueryParams,
-  NzTableSortFn,
-  NzTableSortOrder,
-} from 'ng-zorro-antd/table';
+import { NzTableModule, NzTableQueryParams } from 'ng-zorro-antd/table';
 import { IStudent } from '../../interfaces/student';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { Router } from '@angular/router';
-import { SchoolsService } from '../../service/schools.service';
 import { initialPaginateInfo, IPaginateInfo } from '../../interfaces/paginate';
 import { Student } from '../../models/student.model';
 import { StudentsService } from '../../service/students.service';
@@ -21,6 +13,10 @@ import { TableColumnComponent } from '../common/table-column/table-column.compon
 import { NzDividerComponent } from 'ng-zorro-antd/divider';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ColumnItem } from '../common/table-column/table-column.component';
+import { Store } from '@ngrx/store';
+import { AuthState } from '../store/auth/auth.state';
+import { map, Observable } from 'rxjs';
+import { selectRole } from '../store/auth/auth.selector';
 
 type filterItem = 'name' | 'email' | 'school_id';
 
@@ -42,6 +38,7 @@ export class StudentsListComponent implements OnInit {
   loading = true;
   pageSize = 10;
   pageIndex = 1;
+  isAdmin$: Observable<boolean>;
   studentsList: IStudent[] = [];
   filter: { key: filterItem; value: string }[] = [
     {
@@ -131,8 +128,13 @@ export class StudentsListComponent implements OnInit {
   constructor(
     private router: Router,
     private studentsService: StudentsService,
-    private message: NzMessageService
-  ) {}
+    private message: NzMessageService,
+    private store: Store<AuthState>
+  ) {
+    this.isAdmin$ = this.store
+      .select(selectRole)
+      .pipe(map((role) => role === 'ADMIN'));
+  }
 
   ngOnInit(): void {
     this.studentsService.getPaginateStudents(this.paginateQueryInfo).subscribe({

@@ -1,12 +1,12 @@
 import { ActionReducerMap } from '@ngrx/store';
 import { AuthState } from './auth/auth.state';
 import { authReducer } from './auth/auth.reducer';
-import { Action } from 'rxjs/internal/scheduler/Action';
+import { AUTH_STATE_NAME } from './auth/auth.selector';
 
 export interface AppState {
-  auth: AuthState;
+  [AUTH_STATE_NAME]: AuthState;
 }
 
 export const reducers: ActionReducerMap<AppState> = {
-  auth: authReducer,
+  [AUTH_STATE_NAME]: authReducer,
 };

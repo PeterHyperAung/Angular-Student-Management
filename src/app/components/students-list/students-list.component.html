@@ -1,9 +1,11 @@
 <div class="table">
+  @if(isAdmin$ | async) {
   <div class="table-operations">
     <button nz-button (click)="create()" nzType="primary">
       Create student
     </button>
   </div>
+  }
   <nz-table
     #table
     [nzData]="studentsList"
@@ -16,7 +18,9 @@
     nzTableLayout="fixed"
   >
     <app-table-column
-      [listOfColumns]="listOfColumns"
+      [listOfColumns]="
+        (isAdmin$ | async) ? listOfColumns : listOfColumns.slice(0, -1)
+      "
       (search)="onSearch($event)"
       (reset)="onReset($event)"
     ></app-table-column>
@@ -28,6 +32,7 @@
         <td>{{ data.school?.name ?? "No School" }}</td>
         <td>{{ toDateString(data.dateOfBirth) }}</td>
         <td>{{ toDateString(data.startedAt) }}</td>
+        @if(isAdmin$ | async) {
         <td>
           <button nz-button nzType="primary" (click)="onStudentEdit(data.id)">
             Edit
@@ -42,6 +47,7 @@
             Delete
           </button>
         </td>
+        }
       </tr>
     </tbody>
   </nz-table>
