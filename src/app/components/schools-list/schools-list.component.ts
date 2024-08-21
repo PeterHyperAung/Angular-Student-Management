@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { ISchool } from '../../interfaces/school';
+import { ISchool, ISchoolQueryCriteria } from '../../interfaces/school';
 import { Router } from '@angular/router';
 import { NzTableModule, NzTableQueryParams } from 'ng-zorro-antd/table';
 import { CommonModule } from '@angular/common';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { SchoolsService } from '../../service/schools.service';
-import { initialPaginateInfo } from '../../interfaces/paginate';
+import {
+  getInitialPaginateInfo,
+  IPaginateInfo,
+} from '../../interfaces/paginate';
 import { School } from '../../models/school.model';
 import { NzDividerComponent } from 'ng-zorro-antd/divider';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -19,6 +22,7 @@ import { Store } from '@ngrx/store';
 import { AuthState } from '../store/auth/auth.state';
 import { map, Observable } from 'rxjs';
 import { selectRole } from '../store/auth/auth.selector';
+import { IStudent } from '../../interfaces/student';
 
 @Component({
   selector: 'app-schools-list',
@@ -71,7 +75,12 @@ export class SchoolsListComponent implements OnInit {
       name: 'Principal',
       sortOrder: 'ascend',
       sortDirections: ['ascend', 'descend'],
-      sortFn: (a: School, b: School) => a.principal.localeCompare(b.principal),
+      sortFn: (a: School, b: School) => {
+        if (a.principal === b.principal) return 0;
+        if (!a.principal) return -1;
+        if (!b.principal) return 1;
+        return a.principal.localeCompare(b.principal);
+      },
       searchable: true,
     },
     {
@@ -79,12 +88,11 @@ export class SchoolsListComponent implements OnInit {
     },
   ];
   schoolsList: School[] = [];
-  paginateQueryInfo = {
-    ...initialPaginateInfo,
-    searchValues: [
-      { key: 'name', value: '' },
-      { key: 'principal', value: '' },
-    ],
+  paginateQueryInfo: IPaginateInfo<ISchoolQueryCriteria> = {
+    ...getInitialPaginateInfo<ISchoolQueryCriteria>({
+      name: '',
+      principal: '',
+    }),
   };
 
   constructor(
@@ -93,6 +101,8 @@ export class SchoolsListComponent implements OnInit {
     private message: NzMessageService,
     private store: Store<AuthState>
   ) {
+    console.log('PAGINATE QUERY INFO');
+    console.log(this.paginateQueryInfo);
     this.isAdmin$ = this.store
       .select(selectRole)
       .pipe(map((role) => role === 'ADMIN'));
@@ -165,16 +175,26 @@ export class SchoolsListComponent implements OnInit {
         pageSize,
         sortField: this.sortField,
         sortOrder: this.sortOrder,
-        searchValues: this.filter,
+        queryCriteria: this.getQueryCriteria(this.filter),
       })
       .subscribe((data) => {
-        console.log(data);
+        console.log(data.content);
         this.loading = false;
         this.pageIndex = data.pageable.pageNumber + 1;
         this.pageSize = data.pageable.pageSize;
         this.total = data.totalElements;
         this.schoolsList = data.content;
       });
+  }
+
+  private getQueryCriteria(searchValues: { key: string; value: string }[]) {
+    let queryCriteria = {} as ISchoolQueryCriteria;
+    searchValues.forEach((item) => {
+      queryCriteria = { ...queryCriteria, [item.key]: item.value };
+    });
+    if (!queryCriteria.name) queryCriteria.name = '';
+    if (!queryCriteria.principal) queryCriteria.principal = '';
+    return queryCriteria;
   }
 
   onSchoolEdit(id: number) {

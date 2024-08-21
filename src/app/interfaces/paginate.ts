@@ -1,12 +1,9 @@
-export interface IPaginateInfo {
+export interface IPaginateInfo<T> {
   pageIndex: number;
   pageSize: number;
   sortField: string;
   sortOrder: 'ascend' | 'descend' | null;
-  searchValues: {
-    key: string;
-    value: string;
-  }[];
+  queryCriteria: T;
 }
 
 export interface IPaginateResponse<T> {
@@ -38,10 +35,14 @@ export interface IPaginateResponse<T> {
   empty: boolean;
 }
 
-export const initialPaginateInfo: IPaginateInfo = {
-  pageIndex: 1,
-  pageSize: 10,
-  sortField: 'id',
-  sortOrder: 'ascend',
-  searchValues: [],
+export const getInitialPaginateInfo = <T>(
+  queryCriteria: T
+): IPaginateInfo<T> => {
+  return {
+    pageIndex: 1,
+    pageSize: 10,
+    sortField: 'id',
+    sortOrder: 'ascend',
+    queryCriteria,
+  };
 };

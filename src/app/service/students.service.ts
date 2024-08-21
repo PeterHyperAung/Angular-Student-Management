@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { IStudent } from '../interfaces/student';
+import { IStudent, IStudentQueryCriteria } from '../interfaces/student';
 import { DatePipe } from '@angular/common';
 import { IPaginateInfo, IPaginateResponse } from '../interfaces/paginate';
 
@@ -17,7 +17,7 @@ export class StudentsService {
     return this.http.get<IStudent[]>(`${this.apiUrl}/students`);
   }
 
-  getPaginateStudents(paginateQueryInfo: IPaginateInfo) {
+  getPaginateStudents(paginateQueryInfo: IPaginateInfo<IStudentQueryCriteria>) {
     return this.http.post<IPaginateResponse<IStudent>>(
       `${this.apiUrl}/students/nz-paginate`,
       paginateQueryInfo

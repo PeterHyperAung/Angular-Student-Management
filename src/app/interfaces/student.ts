@@ -8,3 +8,5 @@ export interface IStudent {
   school?: ISchool;
   startedAt: string | null;
 }
+
+export type IStudentQueryCriteria = Partial<IStudent>;

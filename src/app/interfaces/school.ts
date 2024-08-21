@@ -3,3 +3,5 @@ export interface ISchool {
   name: string;
   principal: string;
 }
+
+export type ISchoolQueryCriteria = Omit<ISchool, 'id'>;

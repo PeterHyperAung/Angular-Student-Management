@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ISchool } from '../interfaces/school';
+import { ISchool, ISchoolQueryCriteria } from '../interfaces/school';
 import { environment } from '../environments/environment';
 import { JwtService } from './jwt.service';
 import { IPaginateInfo, IPaginateResponse } from '../interfaces/paginate';
@@ -18,7 +18,7 @@ export class SchoolsService {
     return this.http.get<ISchool[]>(`${this.apiUrl}/schools`);
   }
 
-  getPaginateSchools(paginateQueryInfo: IPaginateInfo) {
+  getPaginateSchools(paginateQueryInfo: IPaginateInfo<ISchoolQueryCriteria>) {
     return this.http.post<IPaginateResponse<ISchool>>(
       `${this.apiUrl}/schools/nz-paginate`,
       paginateQueryInfo

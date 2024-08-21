@@ -3,10 +3,13 @@ import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 
 import { NzTableModule, NzTableQueryParams } from 'ng-zorro-antd/table';
-import { IStudent } from '../../interfaces/student';
+import { IStudent, IStudentQueryCriteria } from '../../interfaces/student';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { Router } from '@angular/router';
-import { initialPaginateInfo, IPaginateInfo } from '../../interfaces/paginate';
+import {
+  getInitialPaginateInfo,
+  IPaginateInfo,
+} from '../../interfaces/paginate';
 import { Student } from '../../models/student.model';
 import { StudentsService } from '../../service/students.service';
 import { TableColumnComponent } from '../common/table-column/table-column.component';
@@ -70,12 +73,16 @@ export class StudentsListComponent implements OnInit {
       sortOrder: 'ascend',
       sortDirections: ['ascend', 'descend'],
       sortFn: (a: IStudent, b: IStudent) => a.name.localeCompare(b.name),
+      searchable: true,
+      fieldName: 'name',
     },
     {
       name: 'Email',
       sortOrder: 'ascend',
       sortDirections: ['ascend', 'descend'],
       sortFn: (a: IStudent, b: IStudent) => a.email.localeCompare(b.email),
+      searchable: true,
+      fieldName: 'email',
     },
     {
       name: 'School',
@@ -116,13 +123,8 @@ export class StudentsListComponent implements OnInit {
     },
   ];
   listOfData: IStudent[] = [];
-  paginateQueryInfo: IPaginateInfo = {
-    ...initialPaginateInfo,
-    searchValues: [
-      { key: 'name', value: '' },
-      { key: 'email', value: '' },
-      { key: 'student_id', value: '' },
-    ],
+  paginateQueryInfo: IPaginateInfo<IStudentQueryCriteria> = {
+    ...getInitialPaginateInfo<IStudentQueryCriteria>({ name: '', email: '' }),
   };
 
   constructor(
@@ -204,7 +206,7 @@ export class StudentsListComponent implements OnInit {
         pageSize,
         sortField: this.sortField,
         sortOrder: this.sortOrder,
-        searchValues: this.filter,
+        queryCriteria: this.getQueryCriteria(this.filter),
       })
       .subscribe((data) => {
         this.loading = false;
@@ -213,6 +215,20 @@ export class StudentsListComponent implements OnInit {
         this.total = data.totalElements;
         this.studentsList = data.content;
       });
+  }
+
+  private getQueryCriteria(searchValues: { key: string; value: string }[]) {
+    let queryCriteria = {} as IStudentQueryCriteria;
+
+    searchValues.forEach((item) => {
+      if (item.value) {
+        queryCriteria = { ...queryCriteria, [item.key]: item.value };
+      }
+    });
+    if (!queryCriteria.name) queryCriteria.name = '';
+    if (!queryCriteria.email) queryCriteria.email = '';
+
+    return queryCriteria;
   }
 
   onStudentEdit(id: number) {
