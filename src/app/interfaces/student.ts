@@ -9,4 +9,9 @@ export interface IStudent {
   startedAt: string | null;
 }
 
-export type IStudentQueryCriteria = Partial<IStudent>;
+export type IStudentQueryCriteria = {
+  name: string;
+  email: string;
+  school: string;
+  [key: string]: string;
+};

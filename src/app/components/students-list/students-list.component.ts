@@ -21,7 +21,7 @@ import { AuthState } from '../store/auth/auth.state';
 import { map, Observable } from 'rxjs';
 import { selectRole } from '../store/auth/auth.selector';
 
-type filterItem = 'name' | 'email' | 'school_id';
+type filterItem = 'name' | 'email' | 'school';
 
 @Component({
   selector: 'app-students-list',
@@ -53,7 +53,7 @@ export class StudentsListComponent implements OnInit {
       value: '',
     },
     {
-      key: 'school_id',
+      key: 'school',
       value: '',
     },
   ];
@@ -93,7 +93,8 @@ export class StudentsListComponent implements OnInit {
         let secondSchool = b.school?.name ?? '';
         return firstSchool.localeCompare(secondSchool);
       },
-      fieldName: 'school.name',
+      fieldName: 'school',
+      searchable: true,
     },
     {
       name: 'Date of Birth',
@@ -124,7 +125,11 @@ export class StudentsListComponent implements OnInit {
   ];
   listOfData: IStudent[] = [];
   paginateQueryInfo: IPaginateInfo<IStudentQueryCriteria> = {
-    ...getInitialPaginateInfo<IStudentQueryCriteria>({ name: '', email: '' }),
+    ...getInitialPaginateInfo<IStudentQueryCriteria>({
+      name: '',
+      email: '',
+      school: '',
+    }),
   };
 
   constructor(
@@ -163,7 +168,6 @@ export class StudentsListComponent implements OnInit {
       sort: [],
       filter: [...this.filter],
     } satisfies NzTableQueryParams;
-    console.log(params);
 
     this.onQueryParamsChange(params);
   }
@@ -181,7 +185,6 @@ export class StudentsListComponent implements OnInit {
       sort: [],
       filter: [...this.filter],
     } satisfies NzTableQueryParams;
-    console.log(params);
 
     this.onQueryParamsChange(params);
   }
@@ -225,8 +228,10 @@ export class StudentsListComponent implements OnInit {
         queryCriteria = { ...queryCriteria, [item.key]: item.value };
       }
     });
-    if (!queryCriteria.name) queryCriteria.name = '';
-    if (!queryCriteria.email) queryCriteria.email = '';
+
+    Object.keys(queryCriteria).forEach(
+      (key) => (queryCriteria[key] = queryCriteria[key].trim() ?? '')
+    );
 
     return queryCriteria;
   }
