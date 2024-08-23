@@ -20,6 +20,8 @@ import { Store } from '@ngrx/store';
 import { AuthState } from '../store/auth/auth.state';
 import { map, Observable } from 'rxjs';
 import { selectRole } from '../store/auth/auth.selector';
+import { IExcel } from '../common/types/excel';
+import { FileDownloader } from '../common/utils/FileDownloader';
 
 type filterItem = 'name' | 'email' | 'school';
 
@@ -136,7 +138,8 @@ export class StudentsListComponent implements OnInit {
     private router: Router,
     private studentsService: StudentsService,
     private message: NzMessageService,
-    private store: Store<AuthState>
+    private store: Store<AuthState>,
+    private fileDownloader: FileDownloader
   ) {
     this.isAdmin$ = this.store
       .select(selectRole)
@@ -152,6 +155,16 @@ export class StudentsListComponent implements OnInit {
         this.total = data.totalElements;
         this.loading = false;
       },
+    });
+  }
+
+  public downloadExcelFile() {
+    this.studentsService.downloadExcelFile().subscribe({
+      next: (data: IExcel) => {
+        this.fileDownloader.downloadFileFromBase64(data.content, data.filename);
+      },
+      error: (err) => console.log(err),
+      complete: () => console.log('Download complete'),
     });
   }
 

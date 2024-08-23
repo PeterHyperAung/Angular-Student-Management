@@ -5,6 +5,7 @@ import { environment } from '../environments/environment';
 import { JwtService } from './jwt.service';
 import { IPaginateInfo, IPaginateResponse } from '../interfaces/paginate';
 import { School } from '../models/school.model';
+import { IExcel } from '../components/common/types/excel';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,10 @@ export class SchoolsService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private jwtService: JwtService) {}
+
+  downloadExcelFile() {
+    return this.http.get<IExcel>(`${this.apiUrl}/schools/excel`);
+  }
 
   getAllSchools() {
     return this.http.get<ISchool[]>(`${this.apiUrl}/schools`);

@@ -23,6 +23,8 @@ import { AuthState } from '../store/auth/auth.state';
 import { map, Observable } from 'rxjs';
 import { selectRole } from '../store/auth/auth.selector';
 import { IStudent } from '../../interfaces/student';
+import { IExcel } from '../common/types/excel';
+import { FileDownloader } from '../common/utils/FileDownloader';
 
 @Component({
   selector: 'app-schools-list',
@@ -99,10 +101,9 @@ export class SchoolsListComponent implements OnInit {
     private router: Router,
     private schoolsService: SchoolsService,
     private message: NzMessageService,
-    private store: Store<AuthState>
+    private store: Store<AuthState>,
+    private fileDownloader: FileDownloader
   ) {
-    console.log('PAGINATE QUERY INFO');
-    console.log(this.paginateQueryInfo);
     this.isAdmin$ = this.store
       .select(selectRole)
       .pipe(map((role) => role === 'ADMIN'));
@@ -120,6 +121,16 @@ export class SchoolsListComponent implements OnInit {
     });
   }
 
+  downloadExcelFile() {
+    return this.schoolsService.downloadExcelFile().subscribe({
+      next: (data: IExcel) => {
+        this.fileDownloader.downloadFileFromBase64(data.content, data.filename);
+      },
+      error: (err) => console.log(err),
+      complete: () => console.log('completed'),
+    });
+  }
+
   onSearch({ fieldName, value }: { fieldName: string; value: string }): void {
     this.filter.forEach((item) => {
       if (item.key === fieldName) {
@@ -133,7 +144,6 @@ export class SchoolsListComponent implements OnInit {
       sort: [],
       filter: [...this.filter],
     } satisfies NzTableQueryParams;
-    console.log(params);
 
     this.onQueryParamsChange(params);
   }
@@ -151,7 +161,6 @@ export class SchoolsListComponent implements OnInit {
       sort: [],
       filter: [...this.filter],
     } satisfies NzTableQueryParams;
-    console.log(params);
 
     this.onQueryParamsChange(params);
   }
@@ -178,7 +187,6 @@ export class SchoolsListComponent implements OnInit {
         queryCriteria: this.getQueryCriteria(this.filter),
       })
       .subscribe((data) => {
-        console.log(data.content);
         this.loading = false;
         this.pageIndex = data.pageable.pageNumber + 1;
         this.pageSize = data.pageable.pageSize;

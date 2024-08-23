@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { IStudent, IStudentQueryCriteria } from '../interfaces/student';
 import { DatePipe } from '@angular/common';
 import { IPaginateInfo, IPaginateResponse } from '../interfaces/paginate';
+import { IExcel } from '../components/common/types/excel';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,10 @@ export class StudentsService {
   private apiUrl: string = environment.apiUrl;
 
   constructor(private http: HttpClient, private datePipe: DatePipe) {}
+
+  downloadExcelFile() {
+    return this.http.get<IExcel>(`${this.apiUrl}/students/excel`);
+  }
 
   getAllStudents() {
     return this.http.get<IStudent[]>(`${this.apiUrl}/students`);
