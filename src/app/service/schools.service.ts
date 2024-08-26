@@ -19,6 +19,31 @@ export class SchoolsService {
     return this.http.get<IExcel>(`${this.apiUrl}/schools/excel`);
   }
 
+  createSchoolsFromExcel(
+    paginateQueryInfo: IPaginateInfo<ISchoolQueryCriteria>,
+    file: File
+  ) {
+    console.log(paginateQueryInfo);
+    const formData = new FormData();
+    formData.append('pageIndex', String(paginateQueryInfo.pageIndex));
+    formData.append('pageSize', String(paginateQueryInfo.pageSize));
+    formData.append('sortField', paginateQueryInfo.sortField);
+    formData.append('sortField', paginateQueryInfo.sortOrder ?? 'ascend');
+    formData.append('query', JSON.stringify(paginateQueryInfo.queryCriteria));
+    formData.append('file', file);
+
+    let headers = new HttpHeaders();
+    headers.append('Enctype', 'multipart/form-data');
+
+    return this.http.post<IPaginateResponse<ISchool>>(
+      `${this.apiUrl}/schools/excel`,
+      formData,
+      {
+        headers,
+      }
+    );
+  }
+
   getAllSchools() {
     return this.http.get<ISchool[]>(`${this.apiUrl}/schools`);
   }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { IStudent, IStudentQueryCriteria } from '../interfaces/student';
 import { DatePipe } from '@angular/common';
 import { IPaginateInfo, IPaginateResponse } from '../interfaces/paginate';
@@ -13,6 +13,31 @@ export class StudentsService {
   private apiUrl: string = environment.apiUrl;
 
   constructor(private http: HttpClient, private datePipe: DatePipe) {}
+
+  createStudentsFromExcel(
+    paginateQueryInfo: IPaginateInfo<IStudentQueryCriteria>,
+    file: File
+  ) {
+    console.log(paginateQueryInfo);
+    const formData = new FormData();
+    formData.append('pageIndex', String(paginateQueryInfo.pageIndex));
+    formData.append('pageSize', String(paginateQueryInfo.pageSize));
+    formData.append('sortField', paginateQueryInfo.sortField);
+    formData.append('sortField', paginateQueryInfo.sortOrder ?? 'ascend');
+    formData.append('query', JSON.stringify(paginateQueryInfo.queryCriteria));
+    formData.append('file', file);
+
+    let headers = new HttpHeaders();
+    headers.append('Enctype', 'multipart/form-data');
+
+    return this.http.post<IPaginateResponse<IStudent>>(
+      `${this.apiUrl}/students/excel`,
+      formData,
+      {
+        headers,
+      }
+    );
+  }
 
   downloadExcelFile() {
     return this.http.get<IExcel>(`${this.apiUrl}/students/excel`);

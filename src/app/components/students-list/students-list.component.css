@@ -11,3 +11,10 @@
   max-width: 1300px;
   padding: 0 10px;
 }
+
+.btn-upload-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}

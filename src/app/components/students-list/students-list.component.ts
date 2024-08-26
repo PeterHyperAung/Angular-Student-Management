@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { OnInit } from '@angular/core';
 
-import { NzTableModule, NzTableQueryParams } from 'ng-zorro-antd/table';
+import {
+  NzTableModule,
+  NzTableQueryParams,
+  NzTableSortOrder,
+} from 'ng-zorro-antd/table';
 import { IStudent, IStudentQueryCriteria } from '../../interfaces/student';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { Router } from '@angular/router';
@@ -14,6 +18,8 @@ import { Student } from '../../models/student.model';
 import { StudentsService } from '../../service/students.service';
 import { TableColumnComponent } from '../common/table-column/table-column.component';
 import { NzDividerComponent } from 'ng-zorro-antd/divider';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzUploadChangeParam, NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ColumnItem } from '../common/table-column/table-column.component';
 import { Store } from '@ngrx/store';
@@ -22,6 +28,8 @@ import { map, Observable } from 'rxjs';
 import { selectRole } from '../store/auth/auth.selector';
 import { IExcel } from '../common/types/excel';
 import { FileDownloader } from '../common/utils/FileDownloader';
+import { environment } from '../../environments/environment';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 type filterItem = 'name' | 'email' | 'school';
 
@@ -36,11 +44,17 @@ type filterItem = 'name' | 'email' | 'school';
     NzButtonComponent,
     NzDividerComponent,
     TableColumnComponent,
+    NzUploadModule,
+    NzSpinModule,
+    NzIconModule,
   ],
 })
 export class StudentsListComponent implements OnInit {
+  apiUrl = environment.apiUrl;
+  @ViewChild('file') fileInput!: ElementRef;
   total = 0;
   loading = true;
+  fileLoading = false;
   pageSize = 10;
   pageIndex = 1;
   isAdmin$: Observable<boolean>;
@@ -168,52 +182,76 @@ export class StudentsListComponent implements OnInit {
     });
   }
 
+  public handleUpload() {
+    const file = this.fileInput.nativeElement.files[0];
+    // if (fileTypeChecker.validateFileType(file, ['xlsx'])) {
+    //   this.message.error('Invalid file type');
+    //   this.fileInput.nativeElement.value = '';
+    //   return;
+    // }
+
+    this.fileLoading = true;
+    this.studentsService
+      .createStudentsFromExcel(
+        {
+          pageIndex: this.pageIndex,
+          pageSize: this.pageSize,
+          sortField: this.sortField,
+          sortOrder: this.sortOrder,
+          queryCriteria: this.getQueryCriteria(this.filter),
+        },
+        file
+      )
+      .subscribe({
+        next: (data) => {
+          this.pageIndex = data.pageable.pageNumber + 1;
+          this.pageSize = data.pageable.pageSize;
+          this.total = data.totalElements;
+          this.studentsList = data.content;
+          this.fileInput.nativeElement.value = '';
+          this.message.success('Students uploaded successfully');
+          this.fileLoading = false;
+        },
+        error: () => {
+          this.message.error('Error uploading students');
+          this.fileLoading = false;
+        },
+      });
+  }
+
   onSearch({ fieldName, value }: { fieldName: string; value: string }): void {
+    this.onQueryParamsChange(this.getParams({ fieldName, value }));
+  }
+
+  private getParams({
+    fieldName,
+    value,
+  }: {
+    fieldName: string;
+    value: string;
+  }): NzTableQueryParams {
     this.filter.forEach((item) => {
       if (item.key === fieldName) {
         item.value = value.trim();
       }
     });
 
-    const params = {
+    return {
       pageSize: this.pageSize,
       pageIndex: this.pageIndex,
       sort: [],
       filter: [...this.filter],
     } satisfies NzTableQueryParams;
-
-    this.onQueryParamsChange(params);
   }
 
   onReset(fieldName: string): void {
-    this.filter.forEach((item) => {
-      if (item.key === fieldName) {
-        item.value = '';
-      }
-    });
-
-    const params = {
-      pageSize: this.pageSize,
-      pageIndex: this.pageIndex,
-      sort: [],
-      filter: [...this.filter],
-    } satisfies NzTableQueryParams;
-
-    this.onQueryParamsChange(params);
+    this.onQueryParamsChange(this.getParams({ fieldName, value: '' }));
   }
 
   onQueryParamsChange(params: NzTableQueryParams): void {
     const { pageSize, pageIndex, sort, filter: searchValues } = params;
 
-    for (let i = 0; i < sort.length; i++) {
-      if (sort[i].value) {
-        const col = this.listOfColumns[i];
-        this.sortField = col.fieldName ?? col.name.toLowerCase();
-        this.sortOrder =
-          (sort[i] && (sort[i].value as 'ascend' | 'descend' | null)) ?? null;
-        break;
-      }
-    }
+    this.setSortFields(sort);
 
     this.loading = true;
     this.studentsService
@@ -233,18 +271,26 @@ export class StudentsListComponent implements OnInit {
       });
   }
 
+  private setSortFields(sort: { key: string; value: NzTableSortOrder }[]) {
+    for (let i = 0; i < sort.length; i++) {
+      if (sort[i].value) {
+        const col = this.listOfColumns[i];
+        this.sortField = col.fieldName ?? col.name.toLowerCase();
+        this.sortOrder =
+          (sort[i] && (sort[i].value as 'ascend' | 'descend' | null)) ?? null;
+        break;
+      }
+    }
+  }
+
   private getQueryCriteria(searchValues: { key: string; value: string }[]) {
     let queryCriteria = {} as IStudentQueryCriteria;
 
     searchValues.forEach((item) => {
-      if (item.value) {
-        queryCriteria = { ...queryCriteria, [item.key]: item.value };
+      if (typeof item.value === 'string') {
+        queryCriteria = { ...queryCriteria, [item.key]: item.value.trim() };
       }
     });
-
-    Object.keys(queryCriteria).forEach(
-      (key) => (queryCriteria[key] = queryCriteria[key].trim() ?? '')
-    );
 
     return queryCriteria;
   }

@@ -9,7 +9,31 @@
       <button nz-button (click)="downloadExcelFile()" nzType="primary">
         Export
       </button>
-      }
+
+      <input
+        type="file"
+        name="file"
+        id="file"
+        #file
+        (change)="handleUpload()"
+        style="display: none"
+        accept=".xlsx"
+      />
+
+      @if(fileLoading) {
+      <button nz-button>
+        <div class="btn-upload-loading">
+          <nz-spin nzSimple [nzSize]="'small'"></nz-spin>
+          <span>Loading</span>
+        </div>
+      </button>
+      } @else {
+
+      <button nz-button (click)="file.click()">
+        <span nz-icon nzType="upload"></span>
+        Upload
+      </button>
+      } }
     </div>
     <nz-table
       #table

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ISchool, ISchoolQueryCriteria } from '../../interfaces/school';
 import { Router } from '@angular/router';
 import { NzTableModule, NzTableQueryParams } from 'ng-zorro-antd/table';
@@ -25,6 +25,8 @@ import { selectRole } from '../store/auth/auth.selector';
 import { IStudent } from '../../interfaces/student';
 import { IExcel } from '../common/types/excel';
 import { FileDownloader } from '../common/utils/FileDownloader';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 @Component({
   selector: 'app-schools-list',
@@ -37,16 +39,20 @@ import { FileDownloader } from '../common/utils/FileDownloader';
     NzDividerComponent,
     SearchComponent,
     TableColumnComponent,
+    NzIconModule,
+    NzSpinModule,
   ],
   templateUrl: './schools-list.component.html',
   styleUrl: './schools-list.component.css',
 })
 export class SchoolsListComponent implements OnInit {
   isAdmin$: Observable<boolean>;
+  @ViewChild('file') fileInput!: ElementRef;
   total = 0;
   pageSize = 10;
   pageIndex = 1;
   loading = true;
+  fileLoading = false;
   filter: { key: string; value: string }[] = [
     {
       key: 'name',
@@ -163,6 +169,44 @@ export class SchoolsListComponent implements OnInit {
     } satisfies NzTableQueryParams;
 
     this.onQueryParamsChange(params);
+  }
+
+  handleUpload() {
+    const file = this.fileInput.nativeElement.files[0];
+    // if (fileTypeChecker.validateFileType(file, ['xlsx'])) {
+    //   this.message.error('Invalid file type');
+    //   this.fileInput.nativeElement.value = '';
+    //   return;
+    // }
+    this.fileLoading = true;
+    this.schoolsService
+      .createSchoolsFromExcel(
+        {
+          pageIndex: this.pageIndex,
+          pageSize: this.pageSize,
+          sortField: this.sortField,
+          sortOrder: this.sortOrder,
+          queryCriteria: this.getQueryCriteria(this.filter),
+        },
+        file
+      )
+      .subscribe({
+        next: (data) => {
+          this.pageIndex = data.pageable.pageNumber + 1;
+          this.pageSize = data.pageable.pageSize;
+          this.total = data.totalElements;
+          this.schoolsList = data.content;
+          this.fileInput.nativeElement.value = '';
+          this.message.success('Schools uploaded successfully');
+          this.fileLoading = false;
+          this.fileInput.nativeElement.value = '';
+        },
+        error: () => {
+          this.message.error('Error uploading schools');
+          this.fileLoading = false;
+          this.fileInput.nativeElement.value = '';
+        },
+      });
   }
 
   onQueryParamsChange(params: NzTableQueryParams): void {
