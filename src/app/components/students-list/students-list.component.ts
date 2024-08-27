@@ -27,7 +27,7 @@ import { AuthState } from '../store/auth/auth.state';
 import { map, Observable } from 'rxjs';
 import { selectRole } from '../store/auth/auth.selector';
 import { IExcel } from '../common/types/excel';
-import { FileDownloader } from '../common/utils/FileDownloader';
+import { FileHandler } from '../common/utils/FileHandler';
 import { environment } from '../../environments/environment';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 
@@ -153,7 +153,7 @@ export class StudentsListComponent implements OnInit {
     private studentsService: StudentsService,
     private message: NzMessageService,
     private store: Store<AuthState>,
-    private fileDownloader: FileDownloader
+    private fileHandler: FileHandler
   ) {
     this.isAdmin$ = this.store
       .select(selectRole)
@@ -175,20 +175,21 @@ export class StudentsListComponent implements OnInit {
   public downloadExcelFile() {
     this.studentsService.downloadExcelFile().subscribe({
       next: (data: IExcel) => {
-        this.fileDownloader.downloadFileFromBase64(data.content, data.filename);
+        this.fileHandler.downloadFileFromBase64(data.content, data.filename);
       },
       error: (err) => console.log(err),
       complete: () => console.log('Download complete'),
     });
   }
 
-  public handleUpload() {
+  public async handleUpload() {
     const file = this.fileInput.nativeElement.files[0];
-    // if (fileTypeChecker.validateFileType(file, ['xlsx'])) {
-    //   this.message.error('Invalid file type');
-    //   this.fileInput.nativeElement.value = '';
-    //   return;
-    // }
+
+    if (!(await this.fileHandler.checkFileType(file, 'xlsx'))) {
+      this.message.error('Invalid file type');
+      this.fileInput.nativeElement.value = '';
+      return;
+    }
 
     this.fileLoading = true;
     this.studentsService

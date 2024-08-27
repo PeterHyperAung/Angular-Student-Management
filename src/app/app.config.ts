@@ -19,7 +19,7 @@ import { authInterceptor } from './interceptors/auth.interceptor';
 import { provideStore, Store } from '@ngrx/store';
 import { reducers } from './components/store';
 import { provideEffects } from '@ngrx/effects';
-import { FileDownloader } from './components/common/utils/FileDownloader';
+import { FileHandler } from './components/common/utils/FileHandler';
 
 registerLocaleData(en);
 
@@ -40,6 +40,6 @@ export const appConfig: ApplicationConfig = {
     DatePipe,
     provideStore(reducers),
     provideEffects(),
-    FileDownloader,
+    FileHandler,
   ],
 };
